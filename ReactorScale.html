@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuclear Reactor Scale Progression</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: #0d1321; /* Dark navy background matching the reference */
+            color: #ffffff;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+        .image-container {
+            background: radial-gradient(circle, rgba(30,41,59,0.8) 0%, rgba(13,19,33,1) 100%);
+        }
+        /* Custom timeline styles */
+        .node-circle {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 3px solid #475569;
+            background-color: #0d1321;
+            transition: all 0.4s ease;
+            position: relative;
+            z-index: 10;
+        }
+        .node-circle.active {
+            border-color: #38bdf8;
+            background-color: #38bdf8;
+            box-shadow: 0 0 15px 5px rgba(56, 189, 248, 0.4); /* Glowing effect */
+        }
+        .node-circle.completed {
+            border-color: #38bdf8;
+            background-color: #0d1321;
+        }
+        .node-label {
+            position: absolute;
+            top: 35px;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            color: #94a3b8;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        .node-container.active .node-label {
+            color: #38bdf8;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden">
+
+    <!-- Top Section: Text and Image -->
+    <div class="flex-1 flex p-8 lg:p-12 gap-10">
+        
+        <!-- Left Side: Text Details -->
+        <div class="w-1/3 flex flex-col justify-center">
+            <div class="mb-6">
+                <!-- Updated Scale Badge -->
+                <span id="scale-text" class="inline-block border border-sky-500 rounded-full px-5 py-2 text-sky-400 font-semibold tracking-wide text-sm md:text-base">
+                    Scale: ~ 10⁻¹⁵ m
+                </span>
+            </div>
+            <h1 id="title-text" class="text-4xl lg:text-5xl font-bold mb-6 text-white leading-tight">
+                Nucleus / Fission
+            </h1>
+            <p id="desc-text" class="text-lg text-slate-300 leading-relaxed">
+                Details about the atomic scale...
+            </p>
+        </div>
+
+        <!-- Right Side: Big Image -->
+        <div class="w-2/3 flex items-center justify-center image-container rounded-3xl border border-slate-700/50 p-4">
+            <img id="main-image" src="" alt="Scale Image" class="max-h-full max-w-full object-contain rounded-xl transition-opacity duration-500 opacity-0">
+        </div>
+    </div>
+
+    <!-- Bottom Section: Timeline Scale -->
+    <div class="h-40 w-full px-16 lg:px-32 flex flex-col justify-center relative bg-slate-900/40 border-t border-slate-800">
+        <div class="relative w-full h-1.5 bg-slate-700 rounded-full">
+            <!-- Progress Line -->
+            <div id="progress-line" class="absolute top-0 left-0 h-full bg-sky-400 rounded-full transition-all duration-500" style="width: 0%;"></div>
+            
+            <!-- Nodes -->
+            <div id="timeline-nodes" class="absolute top-1/2 left-0 right-0 flex justify-between items-center -translate-y-1/2 w-full">
+                <!-- Nodes will be injected here via JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data for the 8 stages based on your instructions
+        const progressionData = [
+            {
+                image: "01_2.jpeg",
+                scale: "Scale: ~ 10⁻¹⁵ m",
+                shortLabel: "Atom",
+                title: "Nucleus / Fission",
+                desc: "The process begins at the atomic scale with the fission of a Uranium-235 nucleus, releasing immense energy, neutrons, and fission fragments."
+            },
+            {
+                image: "02_2.jpeg",
+                scale: "Scale: ~ 10⁻⁶ m (μm)",
+                shortLabel: "Grain",
+                title: "Fuel Microstructure",
+                desc: "At the micrometer scale, the UO2 fuel grains form a polycrystalline structure containing grain boundaries and fission product gas bubbles."
+            },
+            {
+                image: "03_2.jpeg",
+                scale: "Scale: ~ 10⁻² m (cm)",
+                shortLabel: "Pellet",
+                title: "Fuel Pellet",
+                desc: "The microstructures are pressed and sintered into small cylindrical ceramic UO2 fuel pellets, typically 8-10 mm in diameter."
+            },
+            {
+                image: "04_2.jpeg",
+                scale: "Scale: ~ 10⁰ – 10¹ m",
+                shortLabel: "Rod",
+                title: "Fuel Rod",
+                desc: "Hundreds of fuel pellets are stacked inside a hollow zirconium alloy cladding tube (about 3-4 meters long) to form a single fuel rod."
+            },
+            {
+                image: "05_01_2.jpeg",
+                scale: "Scale: ~ 10⁻¹ – 10⁰ m width",
+                shortLabel: "Hex Assembly",
+                title: "Fuel Assembly (Hexagonal)",
+                desc: "Multiple fuel rods are bundled together into a hexagonal lattice structure, commonly used in specific reactor designs (like VVER)."
+            },
+            {
+                image: "05_02_2.jpeg",
+                scale: "Scale: ~ 10⁻¹ – 10⁰ m width",
+                shortLabel: "Square Assembly",
+                title: "Fuel Assembly (Square)",
+                desc: "In Typical Pressurized Water Reactors (PWR), the fuel rods are bundled in a square lattice arrangement (e.g., 17x17 grid)."
+            },
+            {
+                image: "06_2.jpeg",
+                scale: "Scale: ~ meters",
+                shortLabel: "Core",
+                title: "Reactor Core",
+                desc: "Hundreds of fuel assemblies are arranged together to form the reactor core, safely housed inside a massive steel pressure vessel."
+            },
+            {
+                image: "07_2.jpeg",
+                scale: "Scale: ~ 100 m scale",
+                shortLabel: "Plant",
+                title: "Nuclear Power Plant",
+                desc: "The reactor core powers the entire macroscopic nuclear power plant facility, producing clean electricity for the grid."
+            }
+        ];
+
+        let currentStep = 0;
+        const totalSteps = progressionData.length;
+
+        // DOM Elements
+        const scaleText = document.getElementById("scale-text");
+        const titleText = document.getElementById("title-text");
+        const descText = document.getElementById("desc-text");
+        const mainImage = document.getElementById("main-image");
+        const progressLine = document.getElementById("progress-line");
+        const timelineNodesContainer = document.getElementById("timeline-nodes");
+
+        // Generate Timeline Nodes
+        function initTimeline() {
+            progressionData.forEach((step, index) => {
+                const nodeWrapper = document.createElement("div");
+                nodeWrapper.className = `cursor-pointer relative flex flex-col items-center node-container ${index === 0 ? 'active' : ''}`;
+                // Set fixed width so the labels don't offset the flex-between layout
+                nodeWrapper.style.width = "20px"; 
+                
+                nodeWrapper.onclick = () => setStep(index);
+
+                nodeWrapper.innerHTML = `
+                    <div class="node-circle" id="node-${index}"></div>
+                    <div class="node-label">${step.shortLabel}</div>
+                `;
+                timelineNodesContainer.appendChild(nodeWrapper);
+            });
+        }
+
+        function updateUI() {
+            const data = progressionData[currentStep];
+
+            // Image fade effect
+            mainImage.classList.remove("opacity-100");
+            mainImage.classList.add("opacity-0");
+            
+            setTimeout(() => {
+                // Fallback testing if image not found
+                mainImage.onerror = function() {
+                    this.src = 'https://via.placeholder.com/800x600/1e293b/94a3b8?text=Image+Not+Found+('+data.image+')';
+                };
+                mainImage.src = data.image;
+                mainImage.classList.remove("opacity-0");
+                mainImage.classList.add("opacity-100");
+            }, 300); // Wait for fade out
+
+            // Update Text
+            scaleText.innerText = data.scale;
+            titleText.innerText = data.title;
+            descText.innerText = data.description || data.desc;
+
+            // Update Timeline
+            const progressPercent = (currentStep / (totalSteps - 1)) * 100;
+            progressLine.style.width = `${progressPercent}%`;
+
+            // Update Nodes state
+            const allContainers = document.querySelectorAll(".node-container");
+            const allCircles = document.querySelectorAll(".node-circle");
+            
+            allContainers.forEach((container, index) => {
+                const circle = allCircles[index];
+                
+                // Reset classes
+                container.classList.remove("active");
+                circle.classList.remove("active", "completed");
+
+                if (index < currentStep) {
+                    circle.classList.add("completed");
+                } else if (index === currentStep) {
+                    container.classList.add("active");
+                    circle.classList.add("active");
+                }
+            });
+        }
+
+        function setStep(index) {
+            if(index === currentStep) return;
+            currentStep = index;
+            updateUI();
+        }
+
+        // Initialize
+        initTimeline();
+        updateUI();
+
+    </script>
+</body>
+</html>
